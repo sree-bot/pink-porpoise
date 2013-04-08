@@ -20,12 +20,12 @@ def readQuoraURL(url):
     soup = BeautifulSoup(page)    
     return soup
 
-def readSoupFromFile(file_name):
+def readSoupFromFile(filename):
     """
     Debug function for testing quora parsing. 
     Used so that Quora does not throw too many request
     """
-    file = open(file_name)
+    file = open(filename)
     txt = file.read()
     soup = BeautifulSoup(txt)    
     return soup
@@ -53,6 +53,7 @@ def textifytag(tag):
     length =  len(tag.contents)
     textlist =  tag.contents[:length-2]
     return textlist
+
 
 def formatstring(tag):
     #Total hack, need to re-write
@@ -105,18 +106,46 @@ def markdownify(textlist):
             text = tag.string
         if text != None :
             string += text
-    print string,
+    #print string,
+    return string
 
+def addAttribution(string, url, question):
+    final_comment = ""
+    final_comment += string
+    attribution = "\n\n View original Question ["
+    attribution += question + "]("+url+")"
+    final_comment +=attribution
+    final_comment +="\n\n"
+    final_comment +="*The bot is in testing mode, links don't"
+    final_comment +=" work, also complex formatting.*"
+    return final_comment
+
+def initalize():
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
+    
+
+def getFinalComments(url):
+   soup = readQuoraURL(url)
+   question = findQuestion(soup)
+   tag = findTopAnswer(soup)
+   textlist = textifytag(tag)
+   string = markdownify(textlist)
+   finalcomment = addAttribution(string, url, question)
+   return finalcomment    
 
 if __name__ == "__main__":
+    # hack to get UTF-8 working
     script, url = argv
     reload(sys)
     sys.setdefaultencoding("utf-8")
     soup = readQuoraURL(url)
-    #soup = readSoupFromFile()
+    #script, filename = argv
+    #soup = readSoupFromFile(filename)
     question = findQuestion(soup)
-    print "Question asked is :  " + question
-    print ""
     tag = findTopAnswer(soup)
     textlist = textifytag(tag)
-    markdownify(textlist)
+    string = markdownify(textlist)
+    finalcomment = addAttribution(string, url, question)
+    print finalcomment
+    
