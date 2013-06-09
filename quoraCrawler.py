@@ -93,8 +93,8 @@ def formatstring(tag):
         else:
             return ""
     
-    if tag.name == "a":
-        return tag.string
+    if tag.a:
+    	return "[" + tag.a.string + "]" + "(" + tag.a.get('href') + ")"
 
 def markdownify(textlist):
     
